@@ -20,7 +20,7 @@ from common.framework import LpTask
 
 DATASET = 'cifar10'
 L2_THRESHOLD = 1.0
-LINF_THRESHOLD = 4.0 / 255.0
+LINF_THRESHOLD = 8.0 / 255.0
 
 
 TASKS = {

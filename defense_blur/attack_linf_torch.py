@@ -16,12 +16,41 @@
 
 import common.framework
 
+import torch
+
+from defense_blur import task_definition
+EPS = task_definition.LINF_THRESHOLD
+
+def blur(x):
+    """
+    Implement blur defense in torch
+    """
+    x_pad = torch.nn.functional.pad(x, (1, 1, 1, 1))
+    x_pad = (x_pad[:, :, :1] + x_pad[:, :, :-1])/2
+    x_pad = (x_pad[:, :, :, :1] + x_pad[:, :, :, :-1])/2
+    return x_pad
+
+
+def project(x, x_orig, eps=EPS):
+    return torch.max(torch.min(x, x_orig + eps), x_orig - eps)
+
 
 class LinfAttack(common.framework.Attack):
 
-    def attack(self, model, x, y):
+    def attack(self, model, x, y, eps=EPS, steps=20):
+        x_orig = torch.tensor(x)
+        x = torch.tensor(x)
+        y = torch.LongTensor(y)
+        loss = torch.nn.CrossEntropyLoss()
 
-        return x
+        for i in range(steps):
+            print(i)
+            x.requires_grad = True
+            loss(model.convnet(blur(x)), y).backward()
+            x = x.detach() + torch.sign(x.grad) * eps
+            x = project(x, x_orig, eps=EPS)
+
+        return x.numpy()
 
 # # If writing attack which operates on batch of examples is too complicated
 # # then remove LinfAttack and uncommend LinfAttackNonBatched from below:

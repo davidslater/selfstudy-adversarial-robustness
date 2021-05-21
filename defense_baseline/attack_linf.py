@@ -20,9 +20,14 @@ import common.framework
 class LinfAttack(common.framework.Attack):
 
     def attack(self, model, x, y):
+        print(type(x))
+        print(type(y))
+        print(type(model))
         # TODO: Write your attack code here
         # You can query model by calling `model(x)`
-
+        ys = model(x)
+        print(type(ys))
+        print(ys)
         return x
 
 
