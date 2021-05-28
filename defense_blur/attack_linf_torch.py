@@ -49,6 +49,7 @@ class LinfAttack(common.framework.Attack):
             loss(model.convnet(blur(x)), y).backward()
             x = x.detach() + torch.sign(x.grad) * eps
             x = project(x, x_orig, eps=EPS)
+            x = torch.clip(x, 0.0, 1.0)
 
         return x.numpy()
 
